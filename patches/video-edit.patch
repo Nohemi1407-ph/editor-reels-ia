@@ -1,0 +1,189 @@
+diff --git a/SKILL.md b/SKILL.md
+index 9fa0db5..d819dd0 100644
+--- a/SKILL.md
++++ b/SKILL.md
+@@ -127,6 +127,17 @@ PY SK/scripts/headpos.py <project>                  # after the cutout: head/bod
+ ```
+ One cutout at a time (about 1.5 GB of RAM). It prints a progress line every 30 seconds.
+ 
++**Error pass (right after the first assemble, before the cutout and before any caption or insert is timed):**
++```bash
++PY SK/scripts/find_errors.py <project> --lang es      # errors.txt + edl_tight.json
++```
++It flags PAUSA (dead air, measured against the room's own noise floor), MULETILLA (eh, este, o sea...), REPETIDA
++(doubled words, restarted phrases), DUDOSA (low-confidence words: likely mispronounced) and CORTADA (a segment edge
++that clips a syllable). Show the user the list in plain words. Apply the removable ones by copying edl_tight.json
++over edl.json and re-running assemble.py + transcribe_cut.py, then run it again until it only reports DUDOSA lines.
++DUDOSA words can't be fixed by cutting: ask the user to listen (re-record, use another take, or keep it).
++Doing this after captions/inserts exist shifts every later word time and desyncs the inserts.
++
+ ### 5. Inserts in parallel (as soon as the EDL is locked)
+ For each animated insert the script calls for (an app on screen, the profile follow on the CTA, a file scroll),
+ spawn a sub-agent in the background with the brief template in `references/overlays.md`: fixed size, fixed
+@@ -165,5 +176,60 @@ re-assembling.
+ - Lead-in captions centred in front of the speaker read better than lines pinned to the left edge.
+ - Words behind the head are the signature move, but only when readable.
+ 
++## House rules (client feedback, apply to EVERY video, do not re-litigate)
++1. **Language:** the clips are in Spanish. Transcribe with the multilingual models and `language='es'` (ingest.py and
++   transcribe_cut.py already do), captions in Spanish, report to the user in simple Spanish.
++2. **Error pass first:** run `find_errors.py` right after the first assemble and cut every PAUSA / MULETILLA /
++   REPETIDA before timing any caption or insert. Show DUDOSA words to the user. If a pause cut leaves a sliver
++   shorter than ~0.5s, merge it into the neighbouring shot instead of making a flash cut.
++3. **Motion graphics that explain what is said:** every key idea gets an animated insert that illustrates it
++   (numbers, results, the problem crossed out, the offer, the CTA). Also reference what is physically in the shot:
++   props, the setting, the metaphor he uses (a chessboard -> a chess move on "movimiento/avanzar", a king falling on
++   "jaque mate"). Build them with parallel sub-agents (overlays.md). Remotion is also installed in
++   the `remotion/` folder of the editor-reels-ia repo for complex ones (free only for teams of up to 3 people).
++4. **Two typefaces per video, no more:** 'Inter Tight' (all sans: captions, tracked caps, UI inside inserts) +
++   'DM Serif Display' (serif punch words). No Inter, Montserrat, Instrument Serif or Caveat. Every insert brief
++   must say so. Inter Tight 400-700 is the variable font in assets/fonts (declare 500/600/700 explicitly).
++5. **Coloured text is NEON / fluorescent with a glow:** accent neon lime `#C8FF00` (+ `GLOW` text-shadow), alerts
++   neon red `#FF2D55`, success neon green `#39FF88`. Never flat pastel colours (the old butter yellow is retired).
++6. **Animations go IN FRONT, in the lower band (chest / legs / table / board), and never cover the face.** This
++   is the layout the client approved (v2/v4 of the first reel). If an insert would reach the face (close-ups push
++   the chin down), make it smaller and lower it (scale .85, bottom still above y=1470) instead of moving it.
++   Captions then use the top band (above the head) or the chest band, whichever the insert leaves free. Placing an
++   animation BEHIND the speaker (`behind=True`, between base video and cutout) is available but only when the client
++   asks for it: she tried "everything behind" and preferred it in front.
++7. **CTA buttons and link/button labels ("Toca el link", "Agendar llamada", arrows pointing down) always go at the
++   BOTTOM of the frame, right above the y=1470 safe line, close to where the real Instagram link/caption is.** If
++   the face is down there (selfie framing), slide the button to the free side (bottom-left or bottom-right, it may
++   be scaled down to ~.6) instead of moving it up. The spoken line ("aquí te dejo el link") can stay as a caption.
++8. **Selfie framing:** when the face fills the lower half, the free wall is the TOP band: put inserts at y 225-565
++   and captions as one dark pill line right under them (`sm2` + `N()` neon word); the CTA rule above still wins.
++9b. **Type is BIG for the frame:** at 1080 wide, caption phrases >= 64px (700 weight), key words >= 130px,
++   full-screen card words >= 250px, CTA pill text >= 56px. If space is tight, shrink the insert (to ~.85), never the
++   type. The client flagged 46/100px as too small.
++9. **Audio level:** finish every render with `acompressor` + `loudnorm=I=-14:TP=-1.5` (Instagram loudness) when the
++   voice is quiet or uneven; never let SFX peak above the voice.
++10. **Punch-in zoom must not push the face into the insert or text zones:** after changing a zoom, re-run headpos.py
++   and re-check the snapshots.
++
++## Saved styles (named by the client)
++When the user says "edítalo con estilo <nombre>", read `references/styles/<nombre>.md` (and its reference JPGs)
++before Step 6 and build the captions, cards, grade and cutting from it; the house rules above still apply.
++To add a new style: download 1-3 reference reels (Apify `apify/instagram-scraper` with `directUrls` gives a
++`videoUrl`), study contact sheets + frame-by-frame crops, ask what she likes about it, and write a new file there.
++- `marca-personal-1`: fast conversational talking head; 1-3 lowercase words at a time with hard cuts, keyword stack
++  (small/BIG/small) with neon lime or neon red key words, white grid-paper interruption cards, B&W flips on
++  provocative lines, B-roll interrupts, cuts every 1-2s.
++- `video-viral`: cinematic POV/skit look; footage in a 1080x972 letterbox window on black, a permanent two-line
++  "POV: ..." hook title above it, dialogue subtitles coloured per speaker (white / neon), "Risas*" tags, B&W +
++  big emoji on the final punchline, few cuts, no inserts.
++- `marca-2`: premium "3 tips" list look; bottom fade to black, caption pair (white bloom sans + neon orange-gold
++  italic serif key word), glossy 3D orange number badges flying in per tip, full-screen icon cards hanging from a
++  light line, B&W close-up asides with plain subtitles, light leaks, 3D stickers on the CTA.
++- `marca-3`: clean agency/Apple-style explainer; talking head alternates with a white studio canvas (black S-curve
++  strokes) holding UI objects: the video shrinking into a phone mockup with social icons, dashed checklist pills with
++  X/check icons, tilted phone mockups with a connector to an icon; chest captions with neon lime key line, AR phone
++  cards by the desk, huge neon '"KEYWORD"' CTA.
++
+ ---
+ Built by [@tenfoldmarc](https://instagram.com/tenfoldmarc). Follow for daily AI automation builds, real systems, not theory.
+diff --git a/scripts/assemble.py b/scripts/assemble.py
+index c02b31e..48b8d04 100755
+--- a/scripts/assemble.py
++++ b/scripts/assemble.py
+@@ -22,9 +22,13 @@ FF, FP = skillenv.tool('ffmpeg'), skillenv.tool('ffprobe')
+ 
+ 
+ def size(f):
+-    w, h = subprocess.run([FP, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', f],
+-                          **skillenv.TEXT).stdout.strip().split(',')[:2]
+-    return int(w), int(h)
++    """Display size: ffmpeg auto-rotates phone clips stored sideways (rotation -90/90), so crop math must use swapped w/h."""
++    out = subprocess.run([FP, '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height:stream_side_data=rotation',
++                          '-of', 'csv=p=0', f], **skillenv.TEXT).stdout.split()
++    vals = [v for v in ','.join(out).split(',') if v]
++    w, h = int(vals[0]), int(vals[1])
++    rot = int(float(vals[2])) if len(vals) > 2 else 0
++    return (h, w) if abs(rot) % 180 == 90 else (w, h)
+ 
+ 
+ def crop(z, cx, cy, sw, sh):
+@@ -38,7 +42,7 @@ def crop(z, cx, cy, sw, sh):
+ 
+ def frames(f):
+     return int(subprocess.run([FP, '-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=nb_read_frames',
+-                               '-of', 'csv=p=0', f], **skillenv.TEXT).stdout.strip().split(',')[0])
++                               '-of', 'csv=p=0', f], **skillenv.TEXT).stdout.split()[0].split(',')[0])
+ 
+ 
+ def main():
+@@ -60,11 +64,12 @@ def main():
+         out = os.path.join(work, f'seg_{k}.mp4')
+         # vertical fill: scale to cover 1080x1920 then centre-crop (handles 4K 9:16 and odd phone sizes)
+         vf = (f"{crop(s.get('zoom', 1), s.get('cx', .5), s.get('cy', .5), sw, sh)}"
+-              'scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,fps=30')
++              'scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos,crop=1080:1920,setsar=1,fps=30')
+         subprocess.run([FF, '-loglevel', 'error', '-y', '-ss', f"{s['in']:.3f}", '-t', f'{d:.3f}', '-i', f,
+                         '-map', '0:v:0', '-map', '0:a:0', '-vf', vf,
+                         '-af', f'afade=t=in:d=0.02,afade=t=out:st={d - 0.03:.3f}:d=0.03',   # no clicks at the joins
+                         '-c:v', 'libx264', '-crf', '14', '-preset', 'medium', '-pix_fmt', 'yuv420p',
++                        '-map_metadata', '-1', '-map_metadata:s:v', '-1', '-sn', '-dn',
+                         '-c:a', 'pcm_s16le', '-ar', '48000', out], check=True)
+         parts.append(out)
+         meta.append({**s, 'src_in': s['in'], 'src_out': s['out']})
+@@ -72,8 +77,12 @@ def main():
+     concat = os.path.join(work, 'concat.txt')
+     with open(concat, 'w', encoding='utf-8', newline='\n') as fh:
+         fh.write(''.join(skillenv.concat_entry(os.path.basename(p)) for p in parts))
+-    subprocess.run([FF, '-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', concat,
+-                    '-vf', 'setpts=N/30/TB', '-r', '30', '-fps_mode', 'cfr', '-af', 'asetpts=PTS-STARTPTS',
++    # concat FILTER (decodes each part with its own headers): the concat demuxer dropped every frame after a part whose
++    # H.264 headers differed (a 4K rotated phone clip next to a 1080p one: 385 of 683 frames survived)
++    ins = sum((['-i', p] for p in parts), [])
++    graph = ''.join(f'[{k}:v:0][{k}:a:0]' for k in range(len(parts))) + f'concat=n={len(parts)}:v=1:a=1[cv][ca];[cv]setpts=N/30/TB[v];[ca]asetpts=PTS-STARTPTS[a]'
++    subprocess.run([FF, '-loglevel', 'error', '-y', *ins, '-filter_complex', graph, '-map', '[v]', '-map', '[a]',
++                    '-r', '30', '-fps_mode', 'cfr',
+                     '-c:v', 'libx264', '-crf', '14', '-preset', 'medium', '-g', '30', '-keyint_min', '30', '-pix_fmt', 'yuv420p',
+                     '-c:a', 'aac', '-b:a', '192k', aroll], check=True)
+     fr = 0
+diff --git a/scripts/headpos.py b/scripts/headpos.py
+index 7aa1756..3feff77 100755
+--- a/scripts/headpos.py
++++ b/scripts/headpos.py
+@@ -36,7 +36,7 @@ for s in segs:
+         if not ys:
+             rows.append('no subject'); continue
+         top = ys[0]
+-        xs = [x for x in range(w) if px[x, min(h - 1, top + 25)] > 128]
++        xs = [x for x in range(w) if px[x, min(h - 1, top + 25)] > 128] or [0]   # a turned/cropped head can leave the row empty
+         bb = im.point(lambda v: 255 if v > 128 else 0).getbbox()
+         rows.append(f"head top {top * 4:4d}  head x {xs[0] * 4}-{xs[-1] * 4}  body {[v * 4 for v in bb]}")
+     print(f"{s['id']:8s} {t0:6.2f}s  " + ' | '.join(rows))
+diff --git a/scripts/ingest.py b/scripts/ingest.py
+index 5f971a2..0cebd80 100755
+--- a/scripts/ingest.py
++++ b/scripts/ingest.py
+@@ -73,12 +73,12 @@ def main():
+     stack = ['-filter_complex', f'vstack={len(sheets)}'] if len(sheets) > 1 else []
+     subprocess.run([FF, '-loglevel', 'error', '-y', *ins, *stack, os.path.join(work, 'sheets.jpg')], check=True)
+ 
+-    m = WhisperModel('small.en', compute_type='int8')
++    m = WhisperModel('small', compute_type='int8')   # multilingual: the creators record in Spanish
+     lines = []
+     for cid, f in sources.items():
+         wav = os.path.join(work, f'{cid}.wav')
+         subprocess.run([FF, '-loglevel', 'error', '-y', '-i', f, '-vn', '-ac', '1', '-ar', '16000', wav], check=True)
+-        segs, _ = m.transcribe(wav, word_timestamps=True, vad_filter=False)
++        segs, _ = m.transcribe(wav, word_timestamps=True, vad_filter=False, language='es')
+         words = []
+         lines.append(f'===== {cid}  {os.path.basename(f)}')
+         for s in segs:
+diff --git a/scripts/transcribe_cut.py b/scripts/transcribe_cut.py
+index 896e0da..b29edf9 100755
+--- a/scripts/transcribe_cut.py
++++ b/scripts/transcribe_cut.py
+@@ -22,8 +22,8 @@ os.makedirs(os.path.join(proj, 'work'), exist_ok=True)
+ prompt = sys.argv[2] if len(sys.argv) > 2 else 'Claude, Claude Code, skill.'
+ subprocess.run([skillenv.tool('ffmpeg'), '-loglevel', 'error', '-y', '-i', os.path.join(proj, 'assets', 'aroll.mp4'), '-vn', '-ac', '1',
+                 '-ar', '16000', wav], check=True)
+-m = WhisperModel('medium.en', compute_type='int8')
+-s, _ = m.transcribe(wav, word_timestamps=True, vad_filter=False, initial_prompt=prompt)
++m = WhisperModel('medium', compute_type='int8')   # multilingual: Spanish
++s, _ = m.transcribe(wav, word_timestamps=True, vad_filter=False, initial_prompt=prompt, language='es')
+ ws = [{'text': w.word.strip(), 'start': round(w.start, 3), 'end': round(w.end, 3)} for x in s for w in x.words]
+ with open(os.path.join(proj, 'words.json'), 'w', encoding='utf-8') as fh:
+     json.dump(ws, fh, indent=1)

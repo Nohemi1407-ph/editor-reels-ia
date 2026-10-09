@@ -1,0 +1,22 @@
+{
+  "name": "editor-reels-remotion",
+  "version": "1.0.0",
+  "description": "Plantillas Remotion para reels verticales (editor-reels-ia)",
+  "scripts": {
+    "studio": "remotion studio",
+    "composiciones": "remotion compositions",
+    "render": "remotion render ReelTemplate out/reel.mp4"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/cli": "^4.0.534",
+    "@remotion/paths": "^4.0.534",
+    "@remotion/shapes": "^4.0.534",
+    "@remotion/transitions": "^4.0.534",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.534"
+  },
+  "private": true
+}

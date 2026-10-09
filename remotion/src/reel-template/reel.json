@@ -1,0 +1,80 @@
+{
+  "durationSec": 12,
+  "video": "",
+  "music": "",
+  "musicVolume": 0.06,
+  "safeGuide": false,
+  "captions": [
+    {
+      "start": 0.2,
+      "end": 2.4,
+      "text": "Esto es una plantilla",
+      "key": "plantilla"
+    },
+    {
+      "start": 2.4,
+      "end": 4.8,
+      "text": "cambia los textos en reel.json",
+      "key": "reel.json"
+    },
+    {
+      "start": 4.8,
+      "end": 7.4,
+      "text": "y pon tu video en public",
+      "key": "video"
+    },
+    {
+      "start": 7.4,
+      "end": 9.4,
+      "text": "las letras van en neón",
+      "key": "neón"
+    },
+    {
+      "start": 9.4,
+      "end": 12.0,
+      "text": "toca el link de abajo",
+      "key": "link"
+    }
+  ],
+  "inserts": [
+    {
+      "start": 2.6,
+      "end": 5.6,
+      "kicker": "PASO 1",
+      "big": "Graba",
+      "small": "tu video en vertical 9:16",
+      "color": "lime"
+    },
+    {
+      "start": 5.8,
+      "end": 8.8,
+      "kicker": "RESULTADO",
+      "big": "+3x",
+      "small": "más vistas (ejemplo, pon tu dato real)",
+      "color": "green"
+    }
+  ],
+  "cta": {
+    "start": 9.2,
+    "end": 12.0,
+    "text": "Toca el link"
+  },
+  "sfx": [],
+  "_ejemploSfx": [
+    {
+      "at": 0.2,
+      "file": "pop",
+      "volume": 0.2
+    },
+    {
+      "at": 2.6,
+      "file": "whoosh-short",
+      "volume": 0.16
+    },
+    {
+      "at": 9.2,
+      "file": "click",
+      "volume": 0.2
+    }
+  ]
+}

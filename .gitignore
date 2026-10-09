@@ -1,0 +1,47 @@
+# dependencias y entornos
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# renders y salidas
+out/
+renders/
+snapshots/
+transcripciones/
+trozos/
+referencias/
+proyectos/
+
+# medios: nunca se suben (videos de clientes, voces, música)
+*.mp4
+*.mov
+*.m4v
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.aac
+
+# carpetas de medios de Remotion (cada quien pone los suyos)
+remotion/public/*
+!remotion/public/README.md
+!remotion/public/fonts/
+!remotion/public/sfx/
+remotion/public/sfx/*
+!remotion/public/sfx/README.md
+
+# salidas generadas por las caricaturas
+cartoon/*/index.html
+cartoon/*/assets/sfx/
+cartoon/*/assets/tex/
+cartoon/*/assets/vo*
+cartoon/caricatura-retro/rig-showcase/*
+!cartoon/caricatura-retro/rig-showcase/gen_index.py
+
+# secretos
+.env
+*.env
+keys.env
